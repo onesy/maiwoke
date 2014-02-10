@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>test</title>
+</head>
+<body>
+
+<form id="form1" name="form1" method="post" action="">
+<div align="center"><img src="<%$WebRoot%>/Public/Img/CEPHP.png"  /><br />
+  <table width="315" border="1">
+    <tr>
+	<td>序号</td>
+      <td>&nbsp;姓名</td>
+      <td>年龄</td>
+      <td>性别</td>
+    </tr>
+	<% foreach item=rs from=$students %>
+	<tr>
+ 		<td><% $rs.id%></td>
+      <td><% $rs.username%></td>
+      <td><% $rs.age%></td>
+      <td><% $rs.sex%></td>
+
+    </tr>
+	<% /foreach %>
+  </table>
+  <br />
+  <!--<table width="200" border="1">
+      <tr>
+        <td>序号</td>
+        <td><% $student.id %></td>
+      </tr>
+      <tr>
+        <td width="83">&nbsp;姓名</td>
+        <td width="101"><% $student.username %></td>
+      </tr>
+      <tr>
+        <td>年龄</td>
+        <td><%$student.age%></td>
+      </tr>
+      <tr>
+        <td>性别</td>
+        <td><%$student.sex%></td>
+      </tr>
+    </table>-->
+    <br />
+</div>
+<table width="268" border="1" align="center">
+  <tr>
+    <td colspan="2"><div align="center">
+      <%$name|lower%>
+    </div></td>
+    </tr>
+  <tr>
+    <td>序号</td>
+    <td><input name="id" type="text" id="id" /></td>
+  </tr>
+  <tr>
+    <td width="170">&nbsp;姓名</td>
+    <td width="82"><input name="username" type="text" id="username" /></td>
+  </tr>
+  <tr>
+    <td>年龄</td>
+    <td><input name="age" type="text" id="age" /></td>
+  </tr>
+  <tr>
+    <td>性别</td>
+    <td><input name="sex" type="text" id="sex" /></td>
+  </tr>
+  <tr>
+    <td colspan="2"><div align="center">
+      <input type="submit" value="提交" />
+    </div></td>
+    </tr>
+</table>
+</form>
+
+<form id="form2" name="form2" method="post" action="">
+  <table width="200" border="1" align="center">
+    <tr>
+      <td colspan="2"><div align="center">删除</div></td>
+    </tr>
+    <tr>
+      <td width="86">序号</td>
+      <td width="98"><input name="id" type="text" id="id" size="3" /></td>
+    </tr>
+    <tr>
+      <td colspan="2"><div align="center">
+        <input type="submit" name="Submit" value="提交" />
+      </div></td>
+    </tr>
+  </table>
+</form>
+</body>
+</html>
