@@ -11,80 +11,94 @@
 ******************************************************************/
 class Cemvc_Control_Divide
 {
-	public $ClassName;
-	public function __construct()
+        
+        public static $controller;
+        
+        public static $action;
+        
+        public static $tpl;
+
+        public function __construct()
 	{
-		//去除接收参数中入口文件部分字符
-		$BaseDirName=substr(dirname($_SERVER['SCRIPT_NAME']),1);
-		$QuestingStr= preg_replace('/^\/'.str_replace("/","\/",$BaseDirName).'/i',"",preg_replace("/(index.php|\?)\//i","",$_SERVER["REQUEST_URI"]));
-		
-		//去除开头或结尾参多余/号
-		$QuestingStr= preg_replace(array("/^(\/)+/","/(\/)+/","/(\/)+$/"),array("","/",""),$QuestingStr);	
-		if(defined('UrlSeparation')) $QuestingStr=$QuestingStr.UrlSeparation;
-
-		//定义网站根目录常量
-		define('WebRoot',preg_replace("/^\/$/","",'/'.$BaseDirName));
-
-		//定义网站URL常量
-		define('WebUrl',WebRoot."/$QuestingStr");
-		//如果接收到GET方式参数，则采用接收GET传参，兼容GET传参方式
-		if(!defined("UrlSeparation"))
-		$QuestingArr=array($_GET['module'],$_GET['controller']);
-		else
-		$QuestingArr=explode(UrlSeparation,$QuestingStr);			
-		//生成GET参数值	
-		
-		if(empty($QuestingArr['0']))	
-		$QuestingArr = array_slice($QuestingArr,1);		
-		$ArrCount=count($QuestingArr)-1;		
-		for($i=0;$i<$ArrCount;$i+=2)
-		$_GET["$QuestingArr[$i]"]=urldecode($QuestingArr[($i+1)]);		
-		//获取ModuleAction及MethodAction，缺省根目录访问
-
-		$QuestingArr[0]=urldecode(!empty($QuestingArr[0])?$QuestingArr[0]:DefaultModuleAction);
-		$QuestingArr[1]=urldecode(!empty($QuestingArr[1])?$QuestingArr[1]:DefaultMethodAction);
-		$this->ModuleAction=$QuestingArr[0];
-		$this->MethodAction=$QuestingArr[1];		
-		define('ModuleAction',$this->ModuleAction);
-		define('MethodAction',$this->MethodAction);
-
-		$this->ClassName="C_$QuestingArr[0]";
-
-		//空方法及空类的实现
-		if (is_file('C/'.$QuestingArr[0].'.php')) {
-			if (class_exists($this->ClassName))
-			{
-				$Method=$QuestingArr[1];
-				if(!method_exists($this->ClassName,$Method))
-				{
-					if(method_exists($this->ClassName,'__empty'))
-						$this->MethodAction='__empty';
-					else
-						new Cemvc_App_Error('类:'.$this->ClassName.'的方法 '.$Method.'() 不存在');
-				}
-			}
-			else
-				new Cemvc_App_Error('类:'.$this->ClassName.'的定义错误！');
-		}
-		else
-		{
-			if (!class_exists("C___empty"))
-				new Cemvc_App_Error('类:'.$this->ClassName.' 不存在');	
-			else
-			{
-				$this->ModuleAction='__empty';
-				$this->MethodAction='__empty';
-			}
-		}
-		$this->ClassName="C_$this->ModuleAction";
-		
-		//echo 'test';
-		define('RbacModuleAction',$this->ModuleAction);
-		define('RbacMethodAction',$this->MethodAction);
-
-		$Obj=new $this->ClassName;
-		$Obj->{$this->MethodAction}();
+            // 去除RequstURI之前的多余的字符
+            $request_uri = substr($_SERVER['REQUEST_URI'], 1);
+            
+            $requst_array = explode('?', $request_uri);
+            // 确定请求参数
+            $request_params = $this->getRequestParams($requst_array[0]);
+            // 确定请求路径
+            $request_route = $this->getRequestRoute($requst_array[1]);
+            
+            // 确定web_root和framework_root
+            $web_root = dirname($_SERVER['SCRIPT_FILENAME']);
+            $framework_root = dirname(dirname($_SERVER['SCRIPT_FILENAME'])) . DIRECTORY_SEPARATOR . FMWNAME;
+            define('web_root', $web_root);
+            
+            if (!$request_route) {
+                $request_route[] = DefaultModuleAction;
+                $request_route[] = DefaultMethodAction;
+            }
+            $ajax = '';
+            if (isset($request_params['_ajax_']) && $request_params['_ajax_'] == 1) {
+                $ajax = "Ajax_";
+            }
+            Cemvc_App_Register::set('request_params', $request_params);
+            Cemvc_App_Register::set('request_route', $request_route);
+            // 初始化mvc
+            $controller = "Contorller_$request_route[0]";
+            self::$controller = new $controller;
+            $action = $ajax . $request_route[1];
+            self::$action = $action;
+            self::$tpl = new Cemvc_App_Template();
+            ob_start();
+            self::$controller->{self::$action}();
+            ob_end_flush();
+            /**
+             * $Obj=new $this->ClassName;
+	     * $Obj->{$this->MethodAction}();
+             */
+            
+            //-----------------------sunyuw writen------------------//
 	}
+        
+        /**
+         * 取得请求参数的array.
+         * 
+         * @param type $rp
+         */
+        public function getRequestParams($rp_str)
+        {
+            $rps_array = array();
+            if ($rp_str) {
+                $rps = explode('&', $rp_str);
+                foreach ($rps as $rp) {
+                    $kv = explode('=', $rp);
+                    if(count($kv) == 2) {
+                        $rps_array[$kv[0]] = $kv[1];
+                    } else {
+                        $rps_array[$kv[0]] = true;
+                    }
+                }
+                $rps += $_GET;
+                $rps += $_POST;
+            }
+            return $rps_array;
+        }
+        
+        /**
+         * 取得请求路径array
+         * 
+         * @param type $route_str
+         */
+        public function getRequestRoute($route_str)
+        {
+            $route_array = array();
+            if ($route_str && count(explode('/', $route_str)) > 1 ) {
+                $routes = explode('/', $route_str);
+                $route_array += $routes;
+            }
+            return $route_array;
+        }
 
 	public function error()
 	{
@@ -96,4 +110,3 @@ class Cemvc_Control_Divide
 		exit;
 	}
 }
-?>

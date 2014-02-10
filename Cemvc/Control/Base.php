@@ -16,6 +16,9 @@ class Cemvc_Control_Base{
     public $MethodAction;
     public function __construct()
     {
+        $this->view = Cemvc_Control_Divide::$tpl;
+        //------------------------sunyuw---------------------//
+        /**
             if(RBAC)
             $this->setRole();
             //扩展SMARTY引擎
@@ -32,10 +35,12 @@ class Cemvc_Control_Base{
                     $this->view->assign('WebRoot',WebRoot);
                     $this->view->assign('WebUrl',WebUrl);
             }
+         * 
+         */
 
     }
     //重写DISPLAY函数
-    public function display($tpl=NULL)
+    public function display($tpl = '')
     {
             if(NULL==$tpl)
                     $this->view->display(ModuleAction."/".MethodAction.TplExtension);
