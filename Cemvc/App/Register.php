@@ -10,14 +10,14 @@ class Cemvc_App_Register extends ArrayObject
 
     /**
      * 提供公共存储和访问的注册对象
-     * @var JMRegistry
+     * @var Cemvc_App_Register
      */
     private static $_registry = null;
 
     /**
      * 获取默认的注册对象实例.
      *
-     * @return JMRegistry
+     * @return Cemvc_App_Register
      */
     public static function getInstance()
     {
@@ -30,11 +30,11 @@ class Cemvc_App_Register extends ArrayObject
     /**
      * 设置默认注册对象实例.
      *
-     * @param JMRegistry $registry 
+     * @param Cemvc_App_Register $registry 
      * @return void
      * @throws Exception 如果实例已经初始化了.
      */
-    public static function setInstance(JMRegistry $registry)
+    public static function setInstance(Cemvc_App_Register $registry)
     {
         if (self::$_registry !== null) {
             throw new Exception('Registry is already initialized');
@@ -52,7 +52,7 @@ class Cemvc_App_Register extends ArrayObject
     protected static function init()
     {
         $obj = new self::$_registryClassName();
-        if($obj instanceof JMRegistry) self::setInstance($obj);
+        if($obj instanceof Cemvc_App_Register) self::setInstance($obj);
     }
     
     /**

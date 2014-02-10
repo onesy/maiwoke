@@ -1,11 +1,11 @@
 <?php
-Class C_index extends Cemvc_Control_Base
+Class Controller_Index extends Cemvc_Control_Base
 {
+    
     public function index()
     {
-
+        $this->assgin('abc', 123);
         $this->display();
-
     }
     public function test()
     {
